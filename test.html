@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    * {
+        margin:0;
+    }
+    :root {
+        --dial-size: 300px;
+    }
+
+    body {
+        background: #444;
+    }
+    .main-wrapper {
+        width:80%;
+        max-width:300px;
+        margin:0 auto;
+    }
+
+    .dial-container {
+        height:150px;
+        position:relative;
+        overflow:clip;
+    }
+
+    .dial {
+        
+        margin-top:4em;
+        width:var(--dial-size);
+        height:var(--dial-size);
+        background:whitesmoke;
+        border-radius:50% 50% 0 0;
+        clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+        background-image:conic-gradient(from 270deg at 50% 50%,  whitesmoke 0% 20%, orange 20% 22%, cyan 22% 24%, orangered 24% 26%, cyan 26% 28%, orange 28% 30%, whitesmoke 30%);
+        transition: all .2s ease-in-out ;
+    }
+    .hidden {
+        background-image:none;
+        background: #0a034b;
+    }
+    .scale {
+        background:#ecc1a8;
+        font-size: 1.7em;
+        padding:.3em;
+        border-radius:10px;
+        margin-bottom:1em;
+    }
+    #scale2 {
+        text-align:right;
+    }
+    .scales {
+        margin-top:1em;        
+        top:160px;
+        width:300px;
+        max-width:300px;
+        justify-content: space-between;
+        gap:20px
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    .arrow-container {
+        margin-top:1em;
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    .pointer {
+        width: 4px;
+        height:100px;
+        background: #222;
+        position:absolute;
+        bottom:0;
+        left: calc(var(--dial-size) / 2 - 2px);
+        transform-origin: 2px 100px;
+        transform: rotate(0deg);
+    }
+
+</style>
+<body>
+    <div class="main-wrapper">
+        <div class="dial-container">
+            <div class="dial" id="dial">
+                
+            </div>
+            <div class="pointer" id="pointer"></div>
+        </div>
+        
+    
+        <div class="scales">
+            <p class="scale" id="scale1">Very asdf sdfkjsdf dskfjhdsfkdfjhsdkjf sdkfjhsdfskdjh sdkfj</p>
+            <p class="scale" id="scale2">Very sdfkj sdkjfsd ksdkjfdjkdkskdsdkj sdkjfsdfkjhdfs dkj</p>
+        </div>  
+        <div class="button-container">
+            <button id="shuffle-btn">SHUFFLE</button>
+            <button id="hide-btn">HIDE</button>
+            <button id="prompt-btn">NEW PROMPT</button>
+        </div>
+        <div class="arrow-container">
+            <button id="leftten">-10</button>
+            <button id="left"><<</button>
+            <button id="leftone"><</button>
+            <button id="zero">0</button>
+            <button id="rightone">></button>
+            <button id="right">>></button>
+
+            <button id="rightten">+10</button>
+        </div>
+        
+    </div>
+    
+
+<script>
+    const dial = document.getElementById('dial');
+    const shuffleBtn = document.getElementById('shuffle-btn');
+    const hideBtn = document.getElementById('hide-btn');
+    const promptBtn = document.getElementById('prompt-btn');
+    const scale_left = document.getElementById('scale1');
+    const scale_rigth = document.getElementById('scale2');
+    const leftBtn = document.getElementById('left');
+    const rightBtn = document.getElementById('right');
+    const pointer = document.getElementById('pointer');
+    const leftBtnOne = document.getElementById('leftone');
+    const leftBtnTen = document.getElementById('leftten');
+    const rightBtnOne = document.getElementById('rightone');
+    const rightBtnTen = document.getElementById('rightten');
+
+
+
+    function getRandomInt(min, max) {
+        const minCeiled = Math.ceil(min);
+        const maxFloored = Math.floor(max);
+        return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
+    }
+
+    function shuffleDial () {
+        let target = getRandomInt(1, 49);
+    
+        const target_gradient = `conic-gradient(from 270deg at 50% 50%,  whitesmoke 0% ${target - 5}%, orange ${target - 5}% ${target - 3}%, cyan ${target - 3}% ${target - 1}%, orangered ${target - 1}% ${target + 1}%, cyan ${target + 1}% ${target + 3}%, orange ${target + 3}% ${target + 5}%, whitesmoke ${target + 5}%)`
+
+        dial.style.backgroundImage = target_gradient; 
+    }
+    
+    shuffleBtn.addEventListener('click', (e) => {
+        shuffleDial();
+    });
+
+    hideBtn.addEventListener('click', (e) => {
+        dial.classList.toggle('hidden');
+
+    })
+
+
+    const prompts = [
+        ["overrated", "underrated"],
+        ["merrrmão", "meeeu"],
+        ["just politeness", "obvious signals"],
+        ["cringe","cool"],
+        ["hetero","gay"],
+        ["horror","comedy"],
+        ["humans are inherently good","humanity is doomed"],
+        ["tastes blue", "tastes red"],
+        
+    ]
+
+    function getPrompt() {
+        const prompt = prompts[getRandomInt(0, prompts.length)];
+        scale_left.innerText = prompt[0];
+        scale_rigth.innerText = prompt[1]
+    }
+
+    promptBtn.addEventListener('click', (e) => {
+        getPrompt();
+    })
+
+
+/*
+O TRECHO TODO ABAIXO FOI TIRADO DO STACKOVERFLOW:
+https://stackoverflow.com/questions/13592384/how-to-retrieve-the-angle-in-css3-rotate
+*/    
+
+function getAngle() {
+    var el = pointer;
+var st = window.getComputedStyle(el, null);
+var tr = st.getPropertyValue("-webkit-transform") ||
+         st.getPropertyValue("-moz-transform") ||
+         st.getPropertyValue("-ms-transform") ||
+         st.getPropertyValue("-o-transform") ||
+         st.getPropertyValue("transform") ||
+         "FAIL";
+
+// With rotate(30deg)...
+// matrix(0.866025, 0.5, -0.5, 0.866025, 0px, 0px)
+
+var values = tr.split('(')[1].split(')')[0].split(',');
+var a = values[0];
+var b = values[1];
+var c = values[2];
+var d = values[3];
+
+var scale = Math.sqrt(a*a + b*b);
+
+// arc sin, convert from radians to degrees, round
+var sin = b/scale;
+// next line works for 30deg but not 130deg (returns 50);
+// var angle = Math.round(Math.asin(sin) * (180/Math.PI));
+var angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
+
+return angle;
+
+}
+
+function turnLeft() {
+    let currAngle = getAngle();
+    if (currAngle > -85) {
+        
+        let newAngle = currAngle - 5;
+        
+        pointer.style.transform = `rotate(${newAngle}deg)`;
+    }
+};
+
+function turnRight() {
+    let currAngle = getAngle();
+    if (currAngle < 85) {
+        
+        let newAngle = currAngle + 5;
+        
+        pointer.style.transform = `rotate(${newAngle}deg)`;
+    }
+};
+
+/*mudar depois, deixar mais economico */
+function turnLeftTen() {
+    let currAngle = getAngle();
+    if (currAngle > -80) {
+        
+        let newAngle = currAngle - 10;
+        
+        pointer.style.transform = `rotate(${newAngle}deg)`;
+    }
+};
+
+function turnRightTen() {
+    let currAngle = getAngle();
+    if (currAngle < 80) {
+        
+        let newAngle = currAngle + 10;
+        
+        pointer.style.transform = `rotate(${newAngle}deg)`;
+    }
+};
+
+function turnLeftOne() {
+    let currAngle = getAngle();
+    if (currAngle > -89) {
+        
+        let newAngle = currAngle - 1;
+        
+        pointer.style.transform = `rotate(${newAngle}deg)`;
+    }
+};
+
+function turnRightOne() {
+    let currAngle = getAngle();
+    if (currAngle < 89) {
+        
+        let newAngle = currAngle + 1;
+        
+        pointer.style.transform = `rotate(${newAngle}deg)`;
+    }
+};
+
+
+
+leftBtn.addEventListener('click', (e) => {
+    turnLeft();
+})
+rightBtn.addEventListener('click', (e) => {
+    turnRight();
+})
+
+leftBtnTen.addEventListener('click', (e) => {
+    turnLeftTen();
+})
+rightBtnTen.addEventListener('click', (e) => {
+    turnRightTen();
+})
+
+leftBtnOne.addEventListener('click', (e) => {
+    turnLeftOne();
+})
+rightBtnOne.addEventListener('click', (e) => {
+    turnRightOne();
+})
+
+
+</script>
+
+</body>
+</html>
